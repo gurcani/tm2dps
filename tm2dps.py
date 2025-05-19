@@ -11,6 +11,7 @@ import cupy as xp
 from mlsarray.mlsarray import mlsarray,slicelist,init_kspace_grid,rfft2
 from mlsarray.gensolver import gensolver,save_data
 import h5py as h5
+import os
 
 filename='out.h5'
 Npx,Npy=1024,1024
