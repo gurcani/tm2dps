@@ -40,7 +40,7 @@ nu=1e-2
 D=1e-2
 tau=1.0
 kap=1.0
-C=0.1
+C=0.2
 g=1e-2
 nuH,nuL=0.0,0.0
 
@@ -104,12 +104,12 @@ def save_zonal(t,y):
 
 def fshow(t,y):
     zk=y.view(dtype=complex)
-    Phik=zk[0:Nk]
-    Tk=zk[Nk:]
-    dyphi=irft(1j*ky*Phik)
-    T=irft(Tk)
-    Q=np.mean(-dyphi*T)
-    print('Q=',Q.get())
+    phik=zk[0:Nk]
+    nk=zk[Nk:]
+    dyphi=irft(1j*ky*phik)
+    n=irft(nk)
+    Gam=np.mean(-dyphi*n)
+    print('Gam=',Gam.get())
 
 def rhs(t,y):
     zk=y.view(dtype=complex)
@@ -124,7 +124,7 @@ def rhs(t,y):
     om=irft(-ksqr*phik)
     
     dphikdt[:]=(
-        -(C*(1+tau*ksqr)+1j*tau*g*ky*ksqr)*sigk*phik
+        -(C*(1+tau*ksqr)+1j*tau*(g-kap)*ky*ksqr)*sigk*phik
         +(1j*ky*g*(1+tau*(1+ksqr))+C*(1+tau*ksqr))*sigk*nk
         +(1j*kx*rft(dyphi*om)-1j*ky*rft(dxphi*om))
         +(kx**2*rft(dxphi*dyn)-ky**2*rft(dyphi*dxn)+kx*ky*rft(dyphi*dyn-dxphi*dxn))
@@ -139,6 +139,6 @@ def rhs(t,y):
 fsave=[save_last, save_fluxes, save_zonal, save_real_fields]
 dtsave=[0.1,0.1,0.1,0.1]
 dtstep,dtshow=0.1,0.1
-r=gensolver('cupy_ivp.DOP853',rhs,t,zk.view(dtype=float),t1,fsave=fsave,fshow=fshow,dtstep=dtstep,dtshow=dtshow,dtsave=dtsave,dense_output=True,rtol=rtol,atol=atol)
+r=gensolver('cupy_ivp.DOP853',rhs,t,zk.view(dtype=float),t1,fsave=fsave,fshow=fshow,dtstep=dtstep,dtshow=dtshow,dtsave=dtsave,dense=False,rtol=rtol,atol=atol)
 r.run()
 fl.close()
